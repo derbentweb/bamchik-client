@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "bamchikclient",
+  "version": "${version}",
+  "name": "bamchik client",
+  "description": "Ultimate cheat client with license system",
+  "authors": ["YourName"],
+  "contact": {},
+  "license": "Proprietary",
+  "icon": "assets/bamchik/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "ru.bamchik.BamchikClient"
+    ]
+  },
+  "mixins": [
+    "bamchik.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "~1.21.11"
+  }
+}
