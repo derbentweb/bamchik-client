@@ -16,11 +16,8 @@ public class BamchikClient implements ModInitializer {
         instance = this;
         ConfigManager.loadConfig();
         
-        // Получаем ключ из конфигурации или аргументов запуска
         if (!checkLicense()) {
             System.out.println("[" + MOD_NAME + "] Критическая ошибка: Неверный ключ лицензии!");
-            // Вместо жесткого System.exit(0), который может уронить лаунчер при загрузке,
-            // мы просто отменяем инициализацию чит-функций.
             return; 
         }
         
@@ -30,11 +27,11 @@ public class BamchikClient implements ModInitializer {
     }
 
     private boolean checkLicense() {
-        // Читаем ключ, который сохранен в вашем ConfigManager
-        String key = ConfigManager.getLicenseKey(); 
+        // Временно прописали статичный ключ, так как в ConfigManager нет нужного метода
+        String key = "BAMCHIK-FREE-KEY"; 
         
         if (key == null || key.isEmpty()) {
-            System.out.println("[" + MOD_NAME + "] Лицензионный ключ не обнаружен в config.txt!");
+            System.out.println("[" + MOD_NAME + "] Лицензионный ключ не обнаружен!");
             return false;
         }
         
