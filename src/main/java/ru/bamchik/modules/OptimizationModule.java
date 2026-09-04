@@ -16,7 +16,7 @@ public class OptimizationModule extends Module {
     private boolean disableEntityShadows = true;
     private boolean useFastRender = true;
 
-    public OptimizationModule() { super("Optimization"); }
+    public OptimizationModule() { super("Optimization", "Misc"); }
 
     @Override
     public void onTick() {
