@@ -6,7 +6,7 @@ public class SwingAnimationModule extends Module {
     private boolean cancelSwing = false;
     private float swingSpeed = 1.0f;
 
-    public SwingAnimationModule() { super("SwingAnimation"); }
+    public SwingAnimationModule() { super("SwingAnimation", "Misc"); }
 
     @Override public void onTick() {}
 
