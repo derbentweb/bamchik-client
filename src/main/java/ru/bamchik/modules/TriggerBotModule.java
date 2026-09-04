@@ -17,7 +17,7 @@ public class TriggerBotModule extends Module {
     private long lastAttack = 0;
     private long delay = 150;
 
-    public TriggerBotModule() { super("TriggerBot"); }
+    public TriggerBotModule() { super("TriggerBot", "Combat"); }
 
     @Override
     public void onTick() {
