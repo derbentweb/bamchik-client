@@ -3,7 +3,7 @@ package ru.bamchik.modules;
 import ru.bamchik.Module;
 
 public class NoFallModule extends Module {
-    public NoFallModule() { super("NoFall"); }
+    public NoFallModule() { super("NoFall", "Movement"); }
 
     @Override
     public void onTick() {
