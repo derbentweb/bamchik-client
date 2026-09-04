@@ -10,7 +10,7 @@ public class XRayModule extends Module {
     public static final Set<Block> ORE_BLOCKS = new HashSet<>();
 
     public XRayModule() {
-        super("XRay");
+        super("XRay", "Visuals");
         
         ORE_BLOCKS.add(Blocks.DIAMOND_ORE);
         ORE_BLOCKS.add(Blocks.DEEPSLATE_DIAMOND_ORE);
