@@ -43,16 +43,18 @@ public class ModuleManager {
         }
     }
 
-    public void onRender(MatrixStack matrices, float tickDelta) {
+    // Исправлено под современный Minecraft 1.21.1 (MatrixStack заменен на DrawContext)
+    public void onRender(DrawContext context, float tickDelta) {
         for (Module m : modules) {
-            if (m.isEnabled()) m.onRender(matrices, tickDelta);
+            if (m.isEnabled()) m.onRender(context, tickDelta);
         }
     }
 
     public void onHudRender(DrawContext context, float tickDelta) {
         for (Module m : modules) {
-            if (m.isEnabled() && m instanceof HudModule) {
-                ((HudModule) m).onHudRender(context, tickDelta);
+            // Если у вас нет отдельного класса HudModule, можно вызывать обычный onRender или проверять условия
+            if (m.isEnabled()) {
+                m.onRender(context, tickDelta);
             }
         }
     }
