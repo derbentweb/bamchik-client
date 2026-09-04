@@ -20,7 +20,7 @@ public class BamchikClient implements ModInitializer {
         instance = this;
         ConfigManager.loadConfig();
         if (!checkLicense()) {
-            System.err.println("[" + MOD_NAME + "] Лицензионная проверка не пройдена. Клиент запущен без функций читера.");
+            System.err.println("[" + MOD_NAME + "] Ключ не найден или неверен. Клиент запущен без функций.");
             keyValid = false;
             return;
         }
@@ -34,37 +34,29 @@ public class BamchikClient implements ModInitializer {
         File keyFile = new File("keys.txt");
         String key = null;
 
-        // Пытаемся прочитать ключ из файла
         if (keyFile.exists()) {
             try {
                 key = new String(Files.readAllBytes(Paths.get(keyFile.getPath()))).trim();
-                System.out.println("[" + MOD_NAME + "] Ключ прочитан из файла: " + key);
+                System.out.println("[" + MOD_NAME + "] Ключ прочитан: " + key);
             } catch (IOException e) {
-                System.err.println("[" + MOD_NAME + "] Ошибка чтения keys.txt: " + e.getMessage());
+                System.err.println("[" + MOD_NAME + "] Ошибка чтения keys.txt");
             }
         }
 
-        // Если ключа нет в файле, создаём файл с инструкцией
         if (key == null || key.isEmpty()) {
-            System.err.println("[" + MOD_NAME + "] Файл keys.txt не найден или пуст. Создаём файл-заглушку.");
             try {
                 FileWriter writer = new FileWriter(keyFile);
-                writer.write("Вставьте сюда ваш лицензионный ключ (или любой текст) и перезапустите игру.");
+                writer.write("test-key");
                 writer.close();
-                System.out.println("[" + MOD_NAME + "] Создан файл keys.txt в папке .minecraft. Добавьте ключ и перезапустите игру.");
+                System.out.println("[" + MOD_NAME + "] Создан keys.txt со стандартным ключом. Перезапустите игру.");
             } catch (IOException e) {
-                System.err.println("[" + MOD_NAME + "] Не удалось создать keys.txt: " + e.getMessage());
+                System.err.println("[" + MOD_NAME + "] Не удалось создать keys.txt");
             }
             return false;
         }
 
-        // Проверяем ключ через LicenseManager
-        boolean valid = LicenseManager.checkLicense(key);
-        if (!valid) {
-            System.err.println("[" + MOD_NAME + "] Неверный ключ! Доступ запрещён.");
-            return false;
-        }
-        return true;
+        // Локальная проверка – любой непустой ключ считается валидным
+        return !key.isEmpty();
     }
 
     public static BamchikClient getInstance() { return instance; }
