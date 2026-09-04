@@ -18,12 +18,12 @@ public class ClickGUI extends Screen {
     private static final int MODULE_BUTTON_HEIGHT = 22;
     private static final int CATEGORY_BUTTON_WIDTH = 80;
 
-    // Цвета
+    // Цвета (теперь локальные, не сохраняются в конфиг)
     private static final int BG_COLOR = 0xCC1A1A1A;
     private static final int MODULE_OFF = 0xFF444444;
     private static final int MODULE_ON = 0xFF3A8CFF;
 
-    public static float scale = 1.0f;
+    public static float scale = 1.0f; // только масштаб сохраняется
 
     public ClickGUI() {
         super(Text.literal("bamchik client"));
