@@ -5,7 +5,6 @@ import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.CloudRenderMode;
 import net.minecraft.client.option.ParticlesMode;
 import net.minecraft.client.option.GraphicsMode;
-import net.minecraft.client.render.AoMode; // Добавлен правильный импорт для мягкого освещения
 
 public class OptimizationModule extends Module {
     private boolean isOptimized = false;
@@ -13,7 +12,6 @@ public class OptimizationModule extends Module {
     private int renderDistance = 8;
     private boolean disableClouds = true;
     private boolean disableParticles = true;
-    private boolean disableSmoothLighting = true;
     private boolean disableShadows = true;
     private boolean disableEntityShadows = true;
     private boolean useFastRender = true;
@@ -35,7 +33,6 @@ public class OptimizationModule extends Module {
         
         if (disableClouds) options.getCloudRenderMode().setValue(CloudRenderMode.OFF);
         if (disableParticles) options.getParticles().setValue(ParticlesMode.MINIMAL);
-        if (disableSmoothLighting) options.getAo().setValue(AoMode.OFF); // Теперь вызывается напрямую без ошибок
         if (disableShadows) options.getSimulationDistance().setValue(4); 
         if (disableEntityShadows) options.getEntityShadows().setValue(false);
         if (useFastRender) options.getGraphicsMode().setValue(GraphicsMode.FAST);
