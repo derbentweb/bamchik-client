@@ -4,7 +4,7 @@ import ru.bamchik.Module;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Hand;
+import net.minecraft.util.Hand; // Исправлен пакет импорта рук для 1.21.1
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.MathHelper;
@@ -46,7 +46,7 @@ public class KillAuraModule extends Module {
 
     @Override
     public void onTick() {
-        if (mc.player == null || mc.world == null) return;
+        if (mc.player == null || mc.world == null || mc.interactionManager == null) return;
         if (mc.currentScreen != null) return;
 
         long now = System.currentTimeMillis();
@@ -182,7 +182,6 @@ public class KillAuraModule extends Module {
         }
     }
 
-    // Сеттеры для GUI и конфига
     public void setAttackRange(double range) { this.attackRange = Math.max(1, Math.min(6, range)); }
     public void setFov(float fov) { this.fov = Math.max(10, Math.min(180, fov)); }
     public void setMinDelay(long min) { this.minDelay = min; updateNextDelay(); }
