@@ -5,6 +5,7 @@ import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.CloudRenderMode;
 import net.minecraft.client.option.ParticlesMode;
 import net.minecraft.client.option.GraphicsMode;
+import net.minecraft.client.option.SimpleOption;
 
 public class OptimizationModule extends Module {
     private boolean isOptimized = false;
@@ -32,11 +33,11 @@ public class OptimizationModule extends Module {
         options.getMaxFps().setValue(maxFps);
         options.getViewDistance().setValue(renderDistance);
         
-        // Исправлено под современные настройки Minecraft 1.21.1
+        // Исправленные настройки под официальный маппинг Fabric 1.21.1
         if (disableClouds) options.getCloudRenderMode().setValue(CloudRenderMode.OFF);
-        if (disableParticles) options.getParticlesMode().setValue(ParticlesMode.MINIMAL);
-        if (disableSmoothLighting) options.getAo().setValue(net.minecraft.client.render.AoMode.OFF);
-        if (disableShadows) options.getSimulationDistance().setValue(4); // В качестве оптимизации теней/симуляции
+        if (disableParticles) options.getParticles().setValue(ParticlesMode.MINIMAL); // Исправлен метод частиц
+        if (disableSmoothLighting) options.getAo().setValue(SimpleOption.AoMode.OFF); // Исправлен пакет мягкого освещения
+        if (disableShadows) options.getSimulationDistance().setValue(4); 
         if (disableEntityShadows) options.getEntityShadows().setValue(false);
         if (useFastRender) options.getGraphicsMode().setValue(GraphicsMode.FAST);
     }
