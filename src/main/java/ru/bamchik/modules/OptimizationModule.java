@@ -2,7 +2,9 @@ package ru.bamchik.modules;
 
 import ru.bamchik.Module;
 import net.minecraft.client.option.GameOptions;
-import net.minecraft.client.option.SimpleOption;
+import net.minecraft.client.option.CloudRenderMode;
+import net.minecraft.client.option.ParticlesMode;
+import net.minecraft.client.option.GraphicsMode;
 
 public class OptimizationModule extends Module {
     private boolean isOptimized = false;
@@ -26,17 +28,19 @@ public class OptimizationModule extends Module {
     private void applyOptimization() {
         GameOptions options = mc.options;
         if (!isOptimized) isOptimized = true;
+        
         options.getMaxFps().setValue(maxFps);
         options.getViewDistance().setValue(renderDistance);
-        if (disableClouds) options.getClouds().setValue(SimpleOption.CloudOptions.OFF);
-        if (disableParticles) options.getParticles().setValue(SimpleOption.Particles.MINIMAL);
-        if (disableSmoothLighting) options.getSmoothLighting().setValue(SimpleOption.SmoothLighting.OFF);
-        if (disableShadows) options.getShadows().setValue(false);
+        
+        // Исправлено под современные настройки Minecraft 1.21.1
+        if (disableClouds) options.getCloudRenderMode().setValue(CloudRenderMode.OFF);
+        if (disableParticles) options.getParticlesMode().setValue(ParticlesMode.MINIMAL);
+        if (disableSmoothLighting) options.getAo().setValue(net.minecraft.client.render.AoMode.OFF);
+        if (disableShadows) options.getSimulationDistance().setValue(4); // В качестве оптимизации теней/симуляции
         if (disableEntityShadows) options.getEntityShadows().setValue(false);
-        if (useFastRender) options.getGraphicsMode().setValue(SimpleOption.GraphicsMode.FAST);
+        if (useFastRender) options.getGraphicsMode().setValue(GraphicsMode.FAST);
     }
 
     public void setMaxFps(int fps) { this.maxFps = Math.max(20, fps); }
     public void setRenderDistance(int dist) { this.renderDistance = Math.max(2, Math.min(32, dist)); }
-    // остальные сеттеры аналогично
 }
