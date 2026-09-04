@@ -4,8 +4,6 @@ import net.fabricmc.api.ModInitializer;
 import ru.bamchik.license.LicenseManager;
 import ru.bamchik.utils.ConfigManager;
 
-import javax.swing.JOptionPane;
-
 public class BamchikClient implements ModInitializer {
     public static final String MOD_NAME = "bamchik client";
     public static final String VERSION = "1.0";
@@ -17,27 +15,35 @@ public class BamchikClient implements ModInitializer {
     public void onInitialize() {
         instance = this;
         ConfigManager.loadConfig();
+        
+        // Получаем ключ из конфигурации или аргументов запуска
         if (!checkLicense()) {
-            System.exit(0);
+            System.out.println("[" + MOD_NAME + "] Критическая ошибка: Неверный ключ лицензии!");
+            // Вместо жесткого System.exit(0), который может уронить лаунчер при загрузке,
+            // мы просто отменяем инициализацию чит-функций.
+            return; 
         }
+        
         moduleManager = new ModuleManager();
         moduleManager.initModules();
         System.out.println("[" + MOD_NAME + "] Загружен успешно!");
     }
 
     private boolean checkLicense() {
-        String key = JOptionPane.showInputDialog(null,
-                "Введите лицензионный ключ для " + MOD_NAME + ":",
-                "Активация", JOptionPane.PLAIN_MESSAGE);
-        if (key == null) {
-            JOptionPane.showMessageDialog(null, "Ключ не введён. Клиент закрывается.");
+        // Читаем ключ, который сохранен в вашем ConfigManager
+        String key = ConfigManager.getLicenseKey(); 
+        
+        if (key == null || key.isEmpty()) {
+            System.out.println("[" + MOD_NAME + "] Лицензионный ключ не обнаружен в config.txt!");
             return false;
         }
+        
         boolean valid = LicenseManager.checkLicense(key);
         if (!valid) {
-            JOptionPane.showMessageDialog(null, "Неверный ключ! Доступ запрещён.");
+            System.out.println("[" + MOD_NAME + "] Доступ запрещен: Ключ " + key + " невалиден.");
             return false;
         }
+        
         keyValid = true;
         return true;
     }
