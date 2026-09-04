@@ -2,6 +2,7 @@ package ru.bamchik;
 
 import ru.bamchik.modules.*;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.util.math.MatrixStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,6 @@ public class ModuleManager {
     }
 
     private void add(Module m) { modules.add(m); }
-
     public List<Module> getModules() { return modules; }
 
     public Module getModuleByName(String name) {
@@ -43,19 +43,17 @@ public class ModuleManager {
         }
     }
 
-    // Исправлено под современный Minecraft 1.21.1 (MatrixStack заменен на DrawContext)
     public void onRender(DrawContext context, float tickDelta) {
+        MatrixStack matrices = context.getMatrices();
         for (Module m : modules) {
-            if (m.isEnabled()) m.onRender(context, tickDelta);
+            if (m.isEnabled()) m.onRender(matrices, tickDelta);
         }
     }
 
     public void onHudRender(DrawContext context, float tickDelta) {
+        MatrixStack matrices = context.getMatrices();
         for (Module m : modules) {
-            // Если у вас нет отдельного класса HudModule, можно вызывать обычный onRender или проверять условия
-            if (m.isEnabled()) {
-                m.onRender(context, tickDelta);
-            }
+            if (m.isEnabled()) m.onRender(matrices, tickDelta);
         }
     }
 }
