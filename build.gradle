@@ -10,8 +10,21 @@ base {
     archivesName = "bamchik-client"
 }
 
+// ПРИНУДИТЕЛЬНО указываем Gradle, где искать ваш код и ресурсы
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+        resources {
+            srcDirs = ['src/main/resources']
+        }
+    }
+}
+
 repositories {
     mavenCentral()
+    maven { url = "https://maven.fabricmc.net/" }
 }
 
 dependencies {
@@ -40,14 +53,5 @@ java {
 jar {
     from("LICENSE") {
         rename { "${it}_${base.archivesName.get()}" }
-    }
-}
-
-publishing {
-    publications {
-        create("mavenJava", MavenPublication) {
-            artifactId = base.archivesName.get()
-            from components.java
-        }
     }
 }
