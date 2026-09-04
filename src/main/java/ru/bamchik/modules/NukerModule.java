@@ -14,7 +14,7 @@ public class NukerModule extends Module {
 
     public NukerModule() {
         // Конструктор изменен под ваш личный класс Module (передаем только имя чита)
-        super("Nuker"); 
+        super("Nuker", "Misc"); 
     }
 
     @Override
