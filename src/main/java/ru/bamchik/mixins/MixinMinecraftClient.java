@@ -14,15 +14,16 @@ public class MixinMinecraftClient {
     @Inject(method = "handleInputEvents", at = @At("HEAD"))
     private void onHandleInputEvents(CallbackInfo ci) {
         MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null || mc.window == null) return;
+        // Исправлено: заменено на публичный метод mc.getWindow()
+        if (mc.player == null || mc.getWindow() == null) return;
 
-        // Считываем нажатие RShift в официальном потоке обработки ввода игры (handleInputEvents)
+        // Считываем нажатие RShift в официальном потоке обработки ввода игры
         long windowHandle = mc.getWindow().getHandle();
         boolean isDown = org.lwjgl.glfw.GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_RIGHT_SHIFT) == GLFW.GLFW_PRESS;
 
         // Открываем экран только если сейчас не открыто другое меню (чат или инвентарь)
         if (isDown && mc.currentScreen == null) {
-            // Перенаправляем открытие в безопасный отложенный поток рендеринга, чтобы избежать конфликта тиков сервера
+            // Перенаправляем открытие в безопасный отложенный поток рендеринга
             mc.execute(() -> {
                 if (mc.currentScreen == null) {
                     mc.setScreen(new ClickGUI());
