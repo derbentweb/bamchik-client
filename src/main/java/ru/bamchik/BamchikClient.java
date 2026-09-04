@@ -4,7 +4,6 @@ import net.fabricmc.api.ModInitializer;
 import ru.bamchik.license.LicenseManager;
 import ru.bamchik.utils.ConfigManager;
 
-import javax.swing.JOptionPane;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -21,18 +20,21 @@ public class BamchikClient implements ModInitializer {
         instance = this;
         ConfigManager.loadConfig();
         if (!checkLicense()) {
-            System.err.println("[" + MOD_NAME + "] Лицензионная проверка не пройдена. Завершение работы.");
-            System.exit(0);
+            System.err.println("[" + MOD_NAME + "] Лицензионная проверка не пройдена. Клиент запущен без функций читера.");
+            keyValid = false;
+            return;
         }
+        keyValid = true;
         moduleManager = new ModuleManager();
         moduleManager.initModules();
         System.out.println("[" + MOD_NAME + "] Загружен успешно!");
     }
 
     private boolean checkLicense() {
-        String key = null;
-        // 1. Пытаемся прочитать ключ из файла keys.txt в папке игры
         File keyFile = new File("keys.txt");
+        String key = null;
+
+        // Пытаемся прочитать ключ из файла
         if (keyFile.exists()) {
             try {
                 key = new String(Files.readAllBytes(Paths.get(keyFile.getPath()))).trim();
@@ -41,27 +43,27 @@ public class BamchikClient implements ModInitializer {
                 System.err.println("[" + MOD_NAME + "] Ошибка чтения keys.txt: " + e.getMessage());
             }
         }
-        // 2. Если ключ не получен из файла, показываем диалог
+
+        // Если ключа нет в файле, создаём файл с инструкцией
         if (key == null || key.isEmpty()) {
+            System.err.println("[" + MOD_NAME + "] Файл keys.txt не найден или пуст. Создаём файл-заглушку.");
             try {
-                key = JOptionPane.showInputDialog(null,
-                        "Введите лицензионный ключ для " + MOD_NAME + ":",
-                        "Активация", JOptionPane.PLAIN_MESSAGE);
-            } catch (Exception e) {
-                System.err.println("[" + MOD_NAME + "] Не удалось показать диалог ввода ключа: " + e.getMessage());
-                return false;
+                FileWriter writer = new FileWriter(keyFile);
+                writer.write("Вставьте сюда ваш лицензионный ключ (или любой текст) и перезапустите игру.");
+                writer.close();
+                System.out.println("[" + MOD_NAME + "] Создан файл keys.txt в папке .minecraft. Добавьте ключ и перезапустите игру.");
+            } catch (IOException e) {
+                System.err.println("[" + MOD_NAME + "] Не удалось создать keys.txt: " + e.getMessage());
             }
-        }
-        if (key == null || key.isEmpty()) {
-            System.err.println("[" + MOD_NAME + "] Ключ не введён.");
             return false;
         }
+
+        // Проверяем ключ через LicenseManager
         boolean valid = LicenseManager.checkLicense(key);
         if (!valid) {
             System.err.println("[" + MOD_NAME + "] Неверный ключ! Доступ запрещён.");
             return false;
         }
-        keyValid = true;
         return true;
     }
 
