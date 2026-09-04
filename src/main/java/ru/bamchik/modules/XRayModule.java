@@ -12,7 +12,6 @@ public class XRayModule extends Module {
     public XRayModule() {
         super("XRay");
         
-        // Добавляем актуальные блоки под Minecraft 1.21.1
         ORE_BLOCKS.add(Blocks.DIAMOND_ORE);
         ORE_BLOCKS.add(Blocks.DEEPSLATE_DIAMOND_ORE);
         ORE_BLOCKS.add(Blocks.GOLD_ORE);
@@ -21,7 +20,12 @@ public class XRayModule extends Module {
         ORE_BLOCKS.add(Blocks.DEEPSLATE_IRON_ORE);
         ORE_BLOCKS.add(Blocks.NETHER_QUARTZ_ORE);
         ORE_BLOCKS.add(Blocks.ANCIENT_DEBRIS);
-        ORE_BLOCKS.add(Blocks.SPAWNER); // Исправлено: вместо MOB_SPAWNER теперь просто SPAWNER
+        ORE_BLOCKS.add(Blocks.SPAWNER); 
         ORE_BLOCKS.add(Blocks.CHEST);
+    }
+
+    @Override
+    public void onTick() {
+        // Пустой метод, так как XRay работает через рендеринг чанков, а не тики
     }
 }
