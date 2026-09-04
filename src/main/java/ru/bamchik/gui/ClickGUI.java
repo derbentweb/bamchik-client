@@ -53,10 +53,20 @@ public class ClickGUI extends Screen {
             themeY += 25;
         }
 
-        // Слайдер масштаба
-        SliderWidget scaleSlider = new SliderWidget(10, this.height - 40, 100, 20, Text.literal("Scale: " + scale), 0.5, 1.5) {
-            @Override protected void updateMessage() { this.setMessage(Text.literal("Scale: " + String.format("%.2f", scale))); }
-            @Override protected void applyValue() { scale = (float) this.value; ClickGUI.this.clearChildren(); ClickGUI.this.init(); }
+        // Исправленный Слайдер масштаба под Minecraft 1.21.1 (Математический пересчет 0.5 - 1.5)
+        double initialProgress = (scale - 0.5f) / (1.5f - 0.5f);
+        SliderWidget scaleSlider = new SliderWidget(10, this.height - 40, 100, 20, Text.literal("Scale: " + scale), initialProgress) {
+            @Override 
+            protected void updateMessage() { 
+                float currentScale = 0.5f + (float)this.value * (1.5f - 0.5f);
+                this.setMessage(Text.literal("Scale: " + String.format("%.2f", currentScale))); 
+            }
+            @Override 
+            protected void applyValue() { 
+                scale = 0.5f + (float)this.value * (1.5f - 0.5f); 
+                ClickGUI.this.clearChildren(); 
+                ClickGUI.this.init(); 
+            }
         };
         this.addDrawableChild(scaleSlider);
 
@@ -77,6 +87,7 @@ public class ClickGUI extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        this.renderBackground(context, mouseX, mouseY, delta); // Обязательный метод в 1.21.1
         context.fill(0, 0, this.width, this.height, bgColor);
         super.render(context, mouseX, mouseY, delta);
         context.drawTextWithShadow(textRenderer, Text.literal("bamchik client v2.0"), this.width / 2 - 50, 5, textColor);
