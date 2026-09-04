@@ -3,7 +3,7 @@ package ru.bamchik.modules;
 import ru.bamchik.Module;
 
 public class FlightModule extends Module {
-    public FlightModule() { super("Flight"); }
+    public FlightModule() { super("Flight", "Movement"); }
 
     @Override
     public void onTick() {
