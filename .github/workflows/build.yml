@@ -19,13 +19,12 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
 
-    # Этот шаг заставит GitHub развернуть свой собственный, гарантированно рабочий Gradle 8.7 в обход вашего файла
+    # Мы подняли версию Gradle до 8.9, чтобы она полностью подошла под требования Fabric Loom
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
       with:
-        gradle-version: '8.7'
+        gradle-version: '8.9'
 
-    # Запускаем сборку через глобальный установленный gradle вместо ./gradlew
     - name: Build with Gradle
       run: gradle build --no-daemon -x test
 
