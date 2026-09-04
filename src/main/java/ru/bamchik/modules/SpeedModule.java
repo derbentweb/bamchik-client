@@ -4,7 +4,7 @@ import ru.bamchik.Module;
 import net.minecraft.util.math.Vec3d;
 
 public class SpeedModule extends Module {
-    public SpeedModule() { super("Speed"); }
+    public SpeedModule() { super("Speed", "Movement"); }
 
     @Override
     public void onTick() {
