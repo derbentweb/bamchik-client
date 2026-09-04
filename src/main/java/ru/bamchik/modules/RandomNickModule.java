@@ -12,7 +12,7 @@ public class RandomNickModule extends Module {
     private static final String[] PREFIXES = {"Player", "Creeper", "Skeleton", "Zombie", "Enderman", "Wither", "Blaze", "Slime", "Ghast", "Piglin"};
     private static final String[] SUFFIXES = {"X", "Z", "K", "Q", "V", "M", "L", "R", "T", "F"};
 
-    public RandomNickModule() { super("RandomNick"); }
+    public RandomNickModule() { super("RandomNick", "Misc"); }
 
     @Override public void onTick() {}
 
