@@ -5,6 +5,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.Hand; // Исправлен импорт руки
 import ru.bamchik.Module;
 
 public class NukerModule extends Module {
@@ -12,7 +13,8 @@ public class NukerModule extends Module {
     private final int radius = 4;
 
     public NukerModule() {
-        super("Nuker", "Автоматически ломает блоки вокруг игрока");
+        // Конструктор изменен под ваш личный класс Module (передаем только имя чита)
+        super("Nuker"); 
     }
 
     @Override
@@ -28,10 +30,9 @@ public class NukerModule extends Module {
                     Block block = mc.world.getBlockState(targetPos).getBlock();
 
                     if (block != Blocks.AIR) {
-                        // Исправлено вычисление расстояния до центра блока под Minecraft 1.21.1
                         if (mc.player.getPos().distanceTo(Vec3d.ofCenter(targetPos)) <= radius) {
                             mc.interactionManager.updateBlockBreakingProgress(targetPos, net.minecraft.util.math.Direction.UP);
-                            mc.player.swingHand(net.minecraft.util.hand.Hand.MAIN_HAND);
+                            mc.player.swingHand(Hand.MAIN_HAND); // Исправлен вызов маха рукой
                         }
                     }
                 }
