@@ -7,12 +7,17 @@ import net.minecraft.client.util.math.MatrixStack;
 public abstract class Module {
     protected MinecraftClient mc = MinecraftClient.getInstance();
     private String name;
+    private String category;
     private boolean enabled;
-    private int keyBind = 0; // 0 = нет бинда
+    private int keyBind = 0;
 
-    public Module(String name) { this.name = name; }
+    public Module(String name, String category) {
+        this.name = name;
+        this.category = category;
+    }
 
     public String getName() { return name; }
+    public String getCategory() { return category; }
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean e) { this.enabled = e; }
     public int getKeyBind() { return keyBind; }
@@ -20,10 +25,5 @@ public abstract class Module {
 
     public abstract void onTick();
     public void onRender(MatrixStack matrices, float tickDelta) {}
-    public void onHudRender(DrawContext context, float tickDelta) {} // для HUD-модулей
-}
-
-// Интерфейс для HUD-модулей (чтобы не добавлять метод в Module, если не нужно)
-interface HudModule {
-    void onHudRender(DrawContext context, float tickDelta);
+    public void onHudRender(DrawContext context, float tickDelta) {}
 }
