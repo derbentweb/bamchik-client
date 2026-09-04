@@ -10,25 +10,24 @@ import ru.bamchik.gui.ClickGUI;
 
 @Mixin(MinecraftClient.class)
 public class MixinMinecraftClient {
-    
-    private static boolean isKeyPressed = false;
 
-    @Inject(method = "tick", at = @At("HEAD"))
-    private void onTick(CallbackInfo ci) {
+    @Inject(method = "handleInputEvents", at = @At("HEAD"))
+    private void onHandleInputEvents(CallbackInfo ci) {
         MinecraftClient mc = MinecraftClient.getInstance();
-        // Исправлено: используем публичный метод getWindow() вместо приватного поля window
-        if (mc.player == null || mc.getWindow() == null) return;
+        if (mc.player == null || mc.window == null) return;
 
+        // Считываем нажатие RShift в официальном потоке обработки ввода игры (handleInputEvents)
         long windowHandle = mc.getWindow().getHandle();
         boolean isDown = org.lwjgl.glfw.GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_RIGHT_SHIFT) == GLFW.GLFW_PRESS;
 
-        if (isDown) {
-            if (!isKeyPressed && mc.currentScreen == null) {
-                isKeyPressed = true;
-                mc.execute(() -> mc.setScreen(new ClickGUI()));
-            }
-        } else {
-            isKeyPressed = false;
+        // Открываем экран только если сейчас не открыто другое меню (чат или инвентарь)
+        if (isDown && mc.currentScreen == null) {
+            // Перенаправляем открытие в безопасный отложенный поток рендеринга, чтобы избежать конфликта тиков сервера
+            mc.execute(() -> {
+                if (mc.currentScreen == null) {
+                    mc.setScreen(new ClickGUI());
+                }
+            });
         }
     }
 }
