@@ -20,14 +20,10 @@ public class ClickGUI extends Screen {
 
     // Цвета
     private static final int BG_COLOR = 0xCC1A1A1A;
-    private static final int CATEGORY_BG = 0xFF2D2D2D;
-    private static final int CATEGORY_SELECTED = 0xFF3A8CFF;
-    private static final int CATEGORY_TEXT = 0xFFFFFFFF;
     private static final int MODULE_OFF = 0xFF444444;
     private static final int MODULE_ON = 0xFF3A8CFF;
-    private static final int MODULE_TEXT = 0xFFFFFFFF;
 
-    public static float scale = 1.0f; // масштаб
+    public static float scale = 1.0f;
 
     public ClickGUI() {
         super(Text.literal("bamchik client"));
@@ -56,7 +52,7 @@ public class ClickGUI extends Screen {
             catX += CATEGORY_BUTTON_WIDTH + 6;
         }
 
-        // Кнопки модулей для выбранной категории
+        // Кнопки модулей
         String currentCat = categories.get(selectedCategoryIndex);
         List<Module> modules = BamchikClient.getInstance().getModuleManager().getModulesByCategory(currentCat);
         int modX = 20;
@@ -75,7 +71,7 @@ public class ClickGUI extends Screen {
             modY += MODULE_BUTTON_HEIGHT + 4;
         }
 
-        // Кнопки управления масштабом (+ и -)
+        // Кнопки управления масштабом
         ButtonWidget minusBtn = ButtonWidget.builder(Text.literal("-"), b -> {
             scale = Math.max(0.5f, scale - 0.1f);
             this.clearChildren();
