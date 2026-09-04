@@ -5,7 +5,6 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "MixinMinecraftClient",
-    "MixinWorldRenderer",
     "MixinBlockRenderManager",
     "MixinInGameHud",
     "MixinClientPlayNetworkHandler"
