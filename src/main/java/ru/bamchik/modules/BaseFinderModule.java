@@ -10,7 +10,7 @@ public class BaseFinderModule extends Module {
     public static final Set<Block> BASE_BLOCKS = new HashSet<>();
 
     public BaseFinderModule() {
-        super("BaseFinder");
+        super("BaseFinder", "Misc");
         
         BASE_BLOCKS.add(Blocks.RED_BED);
         BASE_BLOCKS.add(Blocks.WHITE_BED);
