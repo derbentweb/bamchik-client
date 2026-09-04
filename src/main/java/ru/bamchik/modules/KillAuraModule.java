@@ -40,7 +40,7 @@ public class KillAuraModule extends Module {
     private boolean isSilentAttacking = false;
 
     public KillAuraModule() {
-        super("KillAura");
+        super("KillAura", "Combat");
         updateNextDelay();
     }
 
