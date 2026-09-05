@@ -2,7 +2,6 @@ package ru.bamchik.gui;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import ru.bamchik.BamchikClient;
 import ru.bamchik.Module;
@@ -13,93 +12,179 @@ import java.util.List;
 
 public class ClickGUI extends Screen {
     private int selectedCategoryIndex = 0;
-    private List<String> categories;
+    private final List<String> categories;
     private int scrollY = 0;
-    private static final int MODULE_BUTTON_HEIGHT = 22;
-    private static final int CATEGORY_BUTTON_WIDTH = 80;
 
-    // Цвета (теперь локальные, не сохраняются в конфиг)
-    private static final int BG_COLOR = 0xCC1A1A1A;
-    private static final int MODULE_OFF = 0xFF444444;
-    private static final int MODULE_ON = 0xFF3A8CFF;
+    // Палитра оформления
+    private static final int COLOR_OVERLAY = 0x90000000;
+    private static final int COLOR_PANEL_BG = 0xF1181820;
+    private static final int COLOR_SIDEBAR = 0xF1121218;
+    private static final int COLOR_HEADER = 0xFF2A2A38;
+    private static final int COLOR_ACCENT = 0xFF3A8CFF;
+    private static final int COLOR_ACCENT_HOVER = 0xFF559CFF;
+    private static final int COLOR_MODULE_OFF = 0xFF22222E;
+    private static final int COLOR_MODULE_ON = 0xFF1E3A5F;
+    private static final int COLOR_BORDER = 0xFF333344;
+    private static final int COLOR_TEXT_MUTED = 0xFFAAAAAA;
 
-    public static float scale = 1.0f; // только масштаб сохраняется
+    public static float scale = 1.0f;
 
     public ClickGUI() {
         super(Text.literal("bamchik client"));
-        categories = BamchikClient.getInstance().getModuleManager().getCategories();
-        if (categories.isEmpty()) categories.add("Modules");
-    }
-
-    @Override
-    protected void init() {
-        super.init();
-
-        // Кнопки категорий
-        int catX = 20;
-        int catY = 20;
-        for (int i = 0; i < categories.size(); i++) {
-            String cat = categories.get(i);
-            final int index = i;
-            ButtonWidget catBtn = ButtonWidget.builder(Text.literal(cat), b -> {
-                selectedCategoryIndex = index;
-                scrollY = 0;
-                this.clearChildren();
-                this.init();
-            }).dimensions(catX, catY, CATEGORY_BUTTON_WIDTH, 20).build();
-            catBtn.active = (selectedCategoryIndex != i);
-            this.addDrawableChild(catBtn);
-            catX += CATEGORY_BUTTON_WIDTH + 6;
+        this.categories = BamchikClient.getInstance().getModuleManager().getCategories();
+        if (this.categories.isEmpty()) {
+            this.categories.add("Modules");
         }
-
-        // Кнопки модулей
-        String currentCat = categories.get(selectedCategoryIndex);
-        List<Module> modules = BamchikClient.getInstance().getModuleManager().getModulesByCategory(currentCat);
-        int modX = 20;
-        int modY = 60 + scrollY;
-        int modWidth = 140;
-        for (Module module : modules) {
-            String label = module.getName() + (module.isEnabled() ? " §aON" : " §cOFF");
-            ButtonWidget modBtn = ButtonWidget.builder(Text.literal(label), b -> {
-                module.setEnabled(!module.isEnabled());
-                b.setMessage(Text.literal(module.getName() + (module.isEnabled() ? " §aON" : " §cOFF")));
-                if (module.getName().equals("RandomNick") && module.isEnabled()) {
-                    ((RandomNickModule) module).execute();
-                }
-            }).dimensions(modX, modY, modWidth, MODULE_BUTTON_HEIGHT).build();
-            this.addDrawableChild(modBtn);
-            modY += MODULE_BUTTON_HEIGHT + 4;
-        }
-
-        // Кнопки управления масштабом
-        ButtonWidget minusBtn = ButtonWidget.builder(Text.literal("-"), b -> {
-            scale = Math.max(0.5f, scale - 0.1f);
-            this.clearChildren();
-            this.init();
-        }).dimensions(this.width - 150, this.height - 30, 30, 20).build();
-        this.addDrawableChild(minusBtn);
-
-        ButtonWidget plusBtn = ButtonWidget.builder(Text.literal("+"), b -> {
-            scale = Math.min(1.5f, scale + 0.1f);
-            this.clearChildren();
-            this.init();
-        }).dimensions(this.width - 110, this.height - 30, 30, 20).build();
-        this.addDrawableChild(plusBtn);
-
-        // Кнопка закрытия
-        ButtonWidget closeBtn = ButtonWidget.builder(Text.literal("Закрыть"), b -> this.close())
-                .dimensions(this.width - 80, 5, 60, 20).build();
-        this.addDrawableChild(closeBtn);
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        context.fill(0, 0, this.width, this.height, BG_COLOR);
-        context.drawText(this.textRenderer, "bamchik client v2.0", 20, 5, 0xFFFFFFFF, false);
-        context.drawText(this.textRenderer, "Scale: " + String.format("%.1f", scale), this.width - 180, this.height - 28, 0xFFAAAAAA, false);
-        context.drawText(this.textRenderer, "RShift для закрытия", this.width - 200, 5, 0xFFAAAAAA, false);
-        context.fill(20, 42, this.width - 20, 43, 0xFF555555);
+        // Затемнение фона
+        context.fill(0, 0, this.width, this.height, COLOR_OVERLAY);
+
+        // Размеры и позиционирование главного окна
+        int guiWidth = 460;
+        int guiHeight = 280;
+        int x = (this.width - guiWidth) / 2;
+        int y = (this.height - guiHeight) / 2;
+
+        // Фон главного окна и рамка
+        context.fill(x, y, x + guiWidth, y + guiHeight, COLOR_PANEL_BG);
+        context.drawBorder(x, y, guiWidth, guiHeight, COLOR_BORDER);
+
+        // Верхняя шапка
+        int headerHeight = 30;
+        context.fill(x, y, x + guiWidth, y + headerHeight, COLOR_HEADER);
+        context.drawText(this.textRenderer, "BAMCHIK CLIENT v2.0", x + 12, y + 10, 0xFFFFFFFF, true);
+        
+        String hintText = "RShift / ESC — Закрыть";
+        int hintWidth = this.textRenderer.getWidth(hintText);
+        context.drawText(this.textRenderer, hintText, x + guiWidth - hintWidth - 12, y + 10, COLOR_TEXT_MUTED, false);
+
+        // Боковая панель категорий
+        int sidebarWidth = 110;
+        int contentY = y + headerHeight;
+        int contentHeight = guiHeight - headerHeight;
+        context.fill(x, contentY, x + sidebarWidth, y + guiHeight, COLOR_SIDEBAR);
+        context.fill(x + sidebarWidth, contentY, x + sidebarWidth + 1, y + guiHeight, COLOR_BORDER);
+
+        // Отрисовка вкладок категорий
+        int catY = contentY + 10;
+        for (int i = 0; i < categories.size(); i++) {
+            String category = categories.get(i);
+            boolean isSelected = (i == selectedCategoryIndex);
+            boolean isHovered = mouseX >= x + 5 && mouseX <= x + sidebarWidth - 5 && mouseY >= catY && mouseY <= catY + 22;
+
+            int catBg = isSelected ? COLOR_ACCENT : (isHovered ? 0x333A8CFF : 0x00000000);
+            if (catBg != 0) {
+                context.fill(x + 6, catY, x + sidebarWidth - 6, catY + 22, catBg);
+            }
+
+            int textColor = isSelected ? 0xFFFFFFFF : (isHovered ? 0xFFDDDDDD : COLOR_TEXT_MUTED);
+            context.drawText(this.textRenderer, category, x + 16, catY + 7, textColor, isSelected);
+
+            catY += 26;
+        }
+
+        // Область просмотра модулей (с ограничениями скролла)
+        int mainX = x + sidebarWidth + 10;
+        int mainWidth = guiWidth - sidebarWidth - 20;
+        int moduleY = contentY + 10 + scrollY;
+
+        String currentCat = categories.get(selectedCategoryIndex);
+        List<Module> modules = BamchikClient.getInstance().getModuleManager().getModulesByCategory(currentCat);
+
+        context.enableScissor(mainX - 5, contentY + 5, mainX + mainWidth + 5, y + guiHeight - 5);
+
+        for (Module module : modules) {
+            // Проверка видимости карточки вьюпортом
+            if (moduleY + 28 >= contentY && moduleY <= y + guiHeight) {
+                boolean enabled = module.isEnabled();
+                boolean isHovered = mouseX >= mainX && mouseX <= mainX + mainWidth && mouseY >= moduleY && mouseY <= moduleY + 26;
+
+                int cardBg = enabled ? (isHovered ? COLOR_ACCENT_HOVER : COLOR_MODULE_ON) : (isHovered ? 0xFF2D2D3D : COLOR_MODULE_OFF);
+                context.fill(mainX, moduleY, mainX + mainWidth, moduleY + 26, cardBg);
+                context.drawBorder(mainX, moduleY, mainWidth, 26, enabled ? COLOR_ACCENT : COLOR_BORDER);
+
+                // Название модуля
+                context.drawText(this.textRenderer, module.getName(), mainX + 10, moduleY + 9, 0xFFFFFFFF, true);
+
+                // Индикатор состояния (ON/OFF)
+                String status = enabled ? "ON" : "OFF";
+                int statusColor = enabled ? 0xFF4ADE80 : 0xFFF87171;
+                int statusX = mainX + mainWidth - this.textRenderer.getWidth(status) - 10;
+                context.drawText(this.textRenderer, status, statusX, moduleY + 9, statusColor, true);
+            }
+            moduleY += 30;
+        }
+
+        context.disableScissor();
+
         super.render(context, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button != 0) return super.mouseClicked(mouseX, mouseY, button);
+
+        int guiWidth = 460;
+        int guiHeight = 280;
+        int x = (this.width - guiWidth) / 2;
+        int y = (this.height - guiHeight) / 2;
+        int headerHeight = 30;
+        int sidebarWidth = 110;
+        int contentY = y + headerHeight;
+
+        // Клик по категориям
+        int catY = contentY + 10;
+        for (int i = 0; i < categories.size(); i++) {
+            if (mouseX >= x + 5 && mouseX <= x + sidebarWidth - 5 && mouseY >= catY && mouseY <= catY + 22) {
+                selectedCategoryIndex = i;
+                scrollY = 0;
+                return true;
+            }
+            catY += 26;
+        }
+
+        // Клик по модулям
+        int mainX = x + sidebarWidth + 10;
+        int mainWidth = guiWidth - sidebarWidth - 20;
+        int moduleY = contentY + 10 + scrollY;
+
+        String currentCat = categories.get(selectedCategoryIndex);
+        List<Module> modules = BamchikClient.getInstance().getModuleManager().getModulesByCategory(currentCat);
+
+        for (Module module : modules) {
+            if (mouseX >= mainX && mouseX <= mainX + mainWidth && mouseY >= moduleY && mouseY <= moduleY + 26) {
+                if (mouseY >= contentY + 5 && mouseY <= y + guiHeight - 5) {
+                    module.setEnabled(!module.isEnabled());
+                    if (module.getName().equals("RandomNick") && module.isEnabled()) {
+                        if (module instanceof RandomNickModule nickModule) {
+                            nickModule.execute();
+                        }
+                    }
+                    return true;
+                }
+            }
+            moduleY += 30;
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        String currentCat = categories.get(selectedCategoryIndex);
+        int moduleCount = BamchikClient.getInstance().getModuleManager().getModulesByCategory(currentCat).size();
+
+        int maxScroll = 0;
+        int minScroll = Math.min(0, 240 - (moduleCount * 30 + 10));
+
+        scrollY += (int) (verticalAmount * 18);
+        if (scrollY > maxScroll) scrollY = maxScroll;
+        if (scrollY < minScroll) scrollY = minScroll;
+
+        return true;
     }
 
     @Override
@@ -111,16 +196,5 @@ public class ClickGUI extends Screen {
     public void close() {
         ConfigManager.saveConfig();
         super.close();
-    }
-
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        scrollY += (int)(verticalAmount * -10);
-        if (scrollY > 0) scrollY = 0;
-        int maxScroll = -(BamchikClient.getInstance().getModuleManager().getModulesByCategory(categories.get(selectedCategoryIndex)).size() * (MODULE_BUTTON_HEIGHT + 4) - (this.height - 100));
-        if (scrollY < maxScroll) scrollY = maxScroll;
-        this.clearChildren();
-        this.init();
-        return true;
     }
 }
