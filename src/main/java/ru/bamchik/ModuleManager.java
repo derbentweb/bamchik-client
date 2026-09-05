@@ -8,20 +8,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ModuleManager {
-    private List<Module> modules = new ArrayList<>();
+    private final List<Module> modules = new ArrayList<>();
 
     public void initModules() {
         // Combat
         add(new KillAuraModule());
         add(new TriggerBotModule());
         add(new AutoClickerModule());
+
         // Movement
         add(new FlightModule());
         add(new SpeedModule());
         add(new NoFallModule());
+
         // Visuals
         add(new XRayModule());
         add(new ESPModule());
+
         // Misc
         add(new NukerModule());
         add(new RandomNickModule());
@@ -29,12 +32,29 @@ public class ModuleManager {
         add(new BaseFinderModule());
         add(new SwingAnimationModule());
 
-        for (Module m : modules) m.setEnabled(true);
+        // Состояние модулей восстанавливается через ConfigManager, а не включается поголовно
     }
 
-    private void add(Module m) { modules.add(m); }
+    private void add(Module m) {
+        modules.add(m);
+    }
 
-    public List<Module> getModules() { return modules; }
+    public List<Module> getModules() {
+        return modules;
+    }
+
+    /**
+     * Типобезопасное получение модуля по его классу
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends Module> T getModule(Class<T> clazz) {
+        for (Module m : modules) {
+            if (m.getClass() == clazz) {
+                return (T) m;
+            }
+        }
+        return null;
+    }
 
     public Module getModuleByName(String name) {
         for (Module m : modules) {
@@ -43,7 +63,6 @@ public class ModuleManager {
         return null;
     }
 
-    // Новые методы для категорий
     public List<String> getCategories() {
         List<String> cats = new ArrayList<>();
         for (Module m : modules) {
@@ -61,15 +80,51 @@ public class ModuleManager {
         return list;
     }
 
+    /**
+     * Обработка нажатий клавиш для переключения модулей по биндам
+     */
+    public void onKeyPressed(int key) {
+        if (key <= 0) return;
+        for (Module m : modules) {
+            if (m.getKey() == key) {
+                m.toggle();
+            }
+        }
+    }
+
     public void onTick() {
-        for (Module m : modules) if (m.isEnabled()) m.onTick();
+        for (Module m : modules) {
+            if (m.isEnabled()) {
+                try {
+                    m.onTick();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public void onRender(MatrixStack matrices, float tickDelta) {
-        for (Module m : modules) if (m.isEnabled()) m.onRender(matrices, tickDelta);
+        for (Module m : modules) {
+            if (m.isEnabled()) {
+                try {
+                    m.onRender(matrices, tickDelta);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public void onHudRender(DrawContext context, float tickDelta) {
-        for (Module m : modules) if (m.isEnabled()) m.onHudRender(context, tickDelta);
+        for (Module m : modules) {
+            if (m.isEnabled()) {
+                try {
+                    m.onHudRender(context, tickDelta);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
