@@ -1,6 +1,7 @@
 package ru.bamchik.mixins;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.session.Session;
@@ -15,18 +16,20 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Mixin(TitleScreen.class)
-public class MixinTitleScreen {
+public abstract class MixinTitleScreen extends Screen {
+
+    protected MixinTitleScreen(Text title) {
+        super(title);
+    }
 
     @Inject(method = "init", at = @At("TAIL"))
     private void addNickButton(CallbackInfo ci) {
-        TitleScreen screen = (TitleScreen) (Object) this;
-
         ButtonWidget nickButton = ButtonWidget.builder(Text.literal("Сменить ник"), button -> {
             String newNick = "Player_" + (int)(Math.random() * 8999 + 1000);
             changeNickname(newNick);
         }).dimensions(10, 10, 110, 20).build();
 
-        screen.addDrawableChild(nickButton);
+        this.addDrawableChild(nickButton);
     }
 
     private void changeNickname(String newNick) {
@@ -41,11 +44,15 @@ public class MixinTitleScreen {
                 Session.AccountType.MOJANG
             );
 
-            Field sessionField = MinecraftClient.class.getDeclaredField("session");
-            sessionField.setAccessible(true);
-            sessionField.set(client, newSession);
-
-            System.out.println("[Bamchik Client] Ник успешно изменён на: " + newNick);
+            // Поиск поля сессии по типу класса для защиты от смены имен в маппингах
+            for (Field field : MinecraftClient.class.getDeclaredFields()) {
+                if (field.getType().equals(Session.class)) {
+                    field.setAccessible(true);
+                    field.set(client, newSession);
+                    System.out.println("[Bamchik Client] Ник изменён на: " + newNick);
+                    break;
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
