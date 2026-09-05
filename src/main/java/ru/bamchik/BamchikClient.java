@@ -20,11 +20,9 @@ public class BamchikClient implements ClientModInitializer {
     public void onInitializeClient() {
         instance = this;
 
-        // 1. Инициализация менеджера модулей
         moduleManager = new ModuleManager();
         moduleManager.initModules();
 
-        // 2. Проверка лицензионного ключа
         if (!checkLicense()) {
             System.err.println("[" + MOD_NAME + "] Ключ не найден или неверен. Клиент запущен без функций.");
             keyValid = false;
@@ -32,7 +30,6 @@ public class BamchikClient implements ClientModInitializer {
         }
         keyValid = true;
 
-        // 3. Загрузка конфигураций
         ConfigManager.loadConfig();
 
         System.out.println("[" + MOD_NAME + "] v" + VERSION + " успешно загружен!");
