@@ -1,13 +1,6 @@
 package ru.bamchik;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import org.lwjgl.glfw.GLFW;
-import ru.bamchik.gui.ClickGUI;
 import ru.bamchik.utils.ConfigManager;
 
 import java.io.File;
@@ -22,8 +15,6 @@ public class BamchikClient implements ClientModInitializer {
     private static BamchikClient instance;
     private ModuleManager moduleManager;
     private boolean keyValid = false;
-
-    private static KeyBinding guiKeyBinding;
 
     @Override
     public void onInitializeClient() {
@@ -41,36 +32,8 @@ public class BamchikClient implements ClientModInitializer {
         }
         keyValid = true;
 
-        // 3. Загрузка конфигураций (после инициализации модулей)
+        // 3. Загрузка конфигураций
         ConfigManager.loadConfig();
-
-        // 4. Регистрация клавиши открытия ClickGUI (по умолчанию Right Shift)
-        guiKeyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-            "key.bamchik.gui",
-            InputUtil.Type.KEYSYM,
-            GLFW.GLFW_KEY_RIGHT_SHIFT,
-            "category.bamchik.title"
-        ));
-
-        // 5. Главный игровой цикл обработчика тиков
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.player == null || client.world == null) return;
-
-            while (guiKeyBinding.wasPressed()) {
-                client.setScreen(new ClickGUI());
-            }
-
-            if (moduleManager != null) {
-                moduleManager.onTick();
-            }
-        });
-
-        // 6. Отрисовка интерфейса и визуалов (HUD)
-        HudRenderCallback.EVENT.register((drawContext, renderTickCounter) -> {
-            if (moduleManager != null) {
-                moduleManager.onHudRender(drawContext, renderTickCounter.getTickDelta(true));
-            }
-        });
 
         System.out.println("[" + MOD_NAME + "] v" + VERSION + " успешно загружен!");
     }
