@@ -3,12 +3,14 @@
   "minVersion": "0.8",
   "package": "ru.bamchik.mixins",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [
+  "mixins": [],
+  "client": [
     "MixinMinecraftClient",
     "MixinInGameHud",
-    "MixinClientPlayNetworkHandler"
+    "MixinClientPlayNetworkHandler",
+    "MixinBlockRenderManager",
+    "MixinTitleScreen"
   ],
-  "client": [],
   "injectors": {
     "defaultRequire": 1
   }
