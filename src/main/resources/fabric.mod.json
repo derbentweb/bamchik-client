@@ -10,7 +10,7 @@
   "icon": "assets/bamchik/icon.png",
   "environment": "client",
   "entrypoints": {
-    "main": [
+    "client": [
       "ru.bamchik.BamchikClient"
     ]
   },
