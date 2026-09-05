@@ -4,59 +4,72 @@ import ru.bamchik.Module;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.util.Hand;
-import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
 public class TriggerBotModule extends Module {
-    private double range = 4.5;
-    private float fov = 45f;
+    private double range = 3.8;
     private boolean targetPlayers = true;
     private boolean targetMobs = false;
     private boolean swingArm = true;
-    private long lastAttack = 0;
-    private long delay = 150;
+    private boolean checkCooldown = true;
 
-    public TriggerBotModule() { super("TriggerBot", "Combat"); }
+    public TriggerBotModule() {
+        super("TriggerBot", "Combat");
+    }
 
     @Override
     public void onTick() {
-        if (mc.player == null || mc.world == null) return;
+        if (mc.player == null || mc.world == null || mc.interactionManager == null) return;
         if (mc.currentScreen != null) return;
-        if (!mc.options.attackKey.isPressed()) return;
 
-        long now = System.currentTimeMillis();
-        if (now - lastAttack < delay) return;
+        // Автоматическая проверка задержки оружия для 100% урона в 1.21.11
+        if (checkCooldown && mc.player.getAttackCooldownProgress(0.5f) < 0.92f) {
+            return;
+        }
 
         Entity target = getTarget();
         if (target == null) return;
 
         mc.interactionManager.attackEntity(mc.player, target);
-        if (swingArm) mc.player.swingHand(Hand.MAIN_HAND);
-        lastAttack = now;
+        if (swingArm) {
+            mc.player.swingHand(Hand.MAIN_HAND);
+        }
     }
 
     private Entity getTarget() {
-        HitResult hit = mc.player.raycast(range, 1.0f, false);
-        if (hit == null || hit.getType() != HitResult.Type.ENTITY) return null;
-        Entity entity = ((net.minecraft.util.hit.EntityHitResult) hit).getEntity();
+        Vec3d eyePos = mc.player.getEyePos();
+        Vec3d rotationVec = mc.player.getRotationVector();
+        Vec3d reachVec = eyePos.add(rotationVec.multiply(range));
+        Box box = mc.player.getBoundingBox().stretch(rotationVec.multiply(range)).expand(1.0);
+
+        // Точный Raycast сущностей через встроенные утилиты Fabric
+        EntityHitResult entityHitResult = ProjectileUtil.raycast(
+            mc.player,
+            eyePos,
+            reachVec,
+            box,
+            e -> e instanceof LivingEntity living 
+                && living.isAlive() 
+                && living.getHealth() > 0 
+                && !e.isSpectator(),
+            range * range
+        );
+
+        if (entityHitResult == null) return null;
+
+        Entity entity = entityHitResult.getEntity();
         if (entity == mc.player) return null;
-        if (!(entity instanceof LivingEntity)) return null;
+
         if (entity instanceof PlayerEntity && !targetPlayers) return null;
         if (!(entity instanceof PlayerEntity) && !targetMobs) return null;
-        if (!isInFov(entity)) return null;
+
         return entity;
     }
 
-    private boolean isInFov(Entity target) {
-        Vec3d eye = mc.player.getEyePos();
-        Vec3d toTarget = target.getBoundingBox().getCenter().subtract(eye).normalize();
-        Vec3d lookVec = mc.player.getRotationVector();
-        double angle = Math.acos(lookVec.dotProduct(toTarget));
-        return Math.toDegrees(angle) <= fov;
-    }
-
     public void setRange(double r) { this.range = Math.max(1, Math.min(6, r)); }
-    public void setFov(float f) { this.fov = Math.max(10, Math.min(180, f)); }
-    public void setDelay(long d) { this.delay = Math.max(50, d); }
+    public void setCheckCooldown(boolean checkCooldown) { this.checkCooldown = checkCooldown; }
 }
