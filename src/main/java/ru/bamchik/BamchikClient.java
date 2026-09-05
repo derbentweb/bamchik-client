@@ -1,7 +1,11 @@
 package ru.bamchik;
 
 import net.fabricmc.api.ModInitializer;
-import ru.bamchik.license.LicenseManager;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.InputUtil;
+import org.lwjgl.glfw.GLFW;
+import ru.bamchik.gui.ClickGUI;
 import ru.bamchik.utils.ConfigManager;
 
 import java.io.*;
@@ -14,20 +18,45 @@ public class BamchikClient implements ModInitializer {
     private static BamchikClient instance;
     private ModuleManager moduleManager;
     private boolean keyValid = false;
+    private boolean isKeyPressed = false;
 
     @Override
     public void onInitialize() {
         instance = this;
         ConfigManager.loadConfig();
+
         if (!checkLicense()) {
             System.err.println("[" + MOD_NAME + "] Ключ не найден или неверен. Клиент запущен без функций.");
             keyValid = false;
             return;
         }
+
         keyValid = true;
         moduleManager = new ModuleManager();
         moduleManager.initModules();
+
+        // Регистрация слушателя событий тика для отслеживания нажатия Right Shift
+        registerKeyBindings();
+
         System.out.println("[" + MOD_NAME + "] Загружен успешно!");
+    }
+
+    private void registerKeyBindings() {
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (!keyValid || client.player == null) return;
+
+            long windowHandle = MinecraftClient.getInstance().getWindow().getHandle();
+            boolean rightShiftPressed = InputUtil.isKeyPressed(windowHandle, GLFW.GLFW_KEY_RIGHT_SHIFT);
+
+            if (rightShiftPressed && !isKeyPressed) {
+                if (!(client.currentScreen instanceof ClickGUI)) {
+                    client.setScreen(new ClickGUI());
+                }
+                isKeyPressed = true;
+            } else if (!rightShiftPressed) {
+                isKeyPressed = false;
+            }
+        });
     }
 
     private boolean checkLicense() {
@@ -44,10 +73,8 @@ public class BamchikClient implements ModInitializer {
         }
 
         if (key == null || key.isEmpty()) {
-            try {
-                FileWriter writer = new FileWriter(keyFile);
+            try (FileWriter writer = new FileWriter(keyFile)) {
                 writer.write("test-key");
-                writer.close();
                 System.out.println("[" + MOD_NAME + "] Создан keys.txt со стандартным ключом. Перезапустите игру.");
             } catch (IOException e) {
                 System.err.println("[" + MOD_NAME + "] Не удалось создать keys.txt");
@@ -55,7 +82,6 @@ public class BamchikClient implements ModInitializer {
             return false;
         }
 
-        // Локальная проверка – любой непустой ключ считается валидным
         return !key.isEmpty();
     }
 
